@@ -40,4 +40,20 @@ module.exports = {
       location,
     });
   },
+
+  async update(req, res) {},
+
+  async destroy(req, res) {
+    const { id } = req.params;
+
+    const dev = await Dev.findById(id);
+
+    if (!dev) {
+      return res.status(400).json({ error: 'Dev does not exists.' });
+    }
+
+    await Dev.findByIdAndDelete(id);
+
+    return res.send({ ok: 'Dev Deleted.' });
+  },
 };
