@@ -29,7 +29,14 @@ module.exports = {
       coordinates: [longitude, latitude],
     };
 
-    await Dev.create(req.body);
+    await Dev.create({
+      github_username,
+      name,
+      bio,
+      techs: techsArray,
+      avatar_url,
+      location,
+    });
 
     return res.json({
       github_username,
@@ -41,19 +48,45 @@ module.exports = {
     });
   },
 
-  async update(req, res) {},
+  async update(req, res) {
+    const { id } = req.params;
+
+    const { name, techs, bio, latitude, longitude } = req.body;
+
+    const devExists = await Dev.findById(id);
+
+    if (!devExists) {
+      return res.status(400).json({ error: 'Dev does not exists.' });
+    }
+
+    const techsArray = parseStringAsArray(techs);
+
+    const location = {
+      type: 'Point',
+      coordinates: [longitude, latitude],
+    };
+
+    await devExists.update(req.body);
+
+    return res.json({
+      name,
+      techs: techsArray,
+      bio,
+      location,
+    });
+  },
 
   async destroy(req, res) {
     const { id } = req.params;
 
-    const dev = await Dev.findById(id);
+    const devExists = await Dev.findById(id);
 
-    if (!dev) {
+    if (!devExists) {
       return res.status(400).json({ error: 'Dev does not exists.' });
     }
 
     await Dev.findByIdAndDelete(id);
 
-    return res.send({ ok: 'Dev Deleted.' });
+    return res.send({ ok: 'Dev deleted.' });
   },
 };
