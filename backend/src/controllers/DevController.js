@@ -1,6 +1,7 @@
 const Dev = require('../models/Dev');
 const parseStringAsArray = require('../utils/parseStringAsArray');
 const api = require('../services/api');
+const { findConnections, sendMessage } = require('../websocket');
 
 module.exports = {
   async index(req, res) {
@@ -37,6 +38,15 @@ module.exports = {
       avatar_url,
       location,
     });
+
+    const sendSocketMessageTo = findConnections(
+      {
+        latitude,
+        longitude,
+      },
+      techsArray
+    );
+    sendMessage(sendSocketMessageTo, 'new-dev', { github_username });
 
     return res.json({
       github_username,
